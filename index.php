@@ -25,7 +25,7 @@ require_once 'views/layouts/header.php';
 
 <div class="container">
     <header class="hero">
-        <h1>Events App</h1>
+        <h1>Application Événements</h1>
         <p>Découvrez et participez à nos événements</p>
     </header>
 

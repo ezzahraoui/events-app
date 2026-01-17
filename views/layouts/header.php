@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($pageTitle) ? htmlspecialchars($pageTitle) . ' - ' : ''; ?>Events App</title>
+    <title><?php echo isset($pageTitle) ? htmlspecialchars($pageTitle) . ' - ' : ''; ?>Application Événements</title>
     <link rel="stylesheet" href="/public/css/style.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
         <nav class="navbar">
             <div class="nav-container">
                 <a href="index.php" class="nav-brand">
-                    <h1>Events App</h1>
+                    <h1>Application Événements</h1>
                 </a>
                 
                 <ul class="nav-menu">

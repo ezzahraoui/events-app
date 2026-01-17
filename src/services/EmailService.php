@@ -1,7 +1,7 @@
 <?php
 class EmailService {
     private static string $fromEmail = 'noreply@events.com';
-    private static string $fromName = 'Events App';
+    private static string $fromName = 'Application Événements';
     
     public static function sendRegistrationConfirmation(int $userId, int $eventId): bool {
         $user = User::findById($userId);
@@ -66,7 +66,7 @@ class EmailService {
         
         $message .= "Merci de votre participation !\n\n";
         $message .= "Cordialement,\n";
-        $message .= "L'équipe Events App";
+        $message .= "L'équipe Application Événements";
         
         return $message;
     }
@@ -80,7 +80,7 @@ class EmailService {
         
         $message .= "N'oubliez pas d'être présent à l'heure !\n\n";
         $message .= "À bientôt,\n";
-        $message .= "L'équipe Events App";
+        $message .= "L'équipe Application Événements";
         
         return $message;
     }
@@ -94,7 +94,7 @@ class EmailService {
         $message .= "Nous sommes désolés pour ce désagrément et vous tiendrons informés si l'événement est reprogrammé.\n\n";
         $message .= "Votre inscription a été automatiquement annulée.\n\n";
         $message .= "Cordialement,\n";
-        $message .= "L'équipe Events App";
+        $message .= "L'équipe Application Événements";
         
         return $message;
     }
