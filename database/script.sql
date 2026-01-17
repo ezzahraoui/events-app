@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_name VARCHAR(50) NOT NULL,
     role ENUM('ROLE_USER', 'ROLE_ADMIN') DEFAULT 'ROLE_USER',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Table events
 CREATE TABLE IF NOT EXISTS events (
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS events (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Table registrations
 CREATE TABLE IF NOT EXISTS registrations (
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS registrations (
     UNIQUE KEY unique_registration (event_id, user_id),
     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Données de démonstration
 INSERT INTO users (email, password_hash, first_name, last_name, role) VALUES

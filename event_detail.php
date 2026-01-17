@@ -1,4 +1,9 @@
 <?php
+// Set UTF-8 header for proper character encoding
+if (headers_sent() === false) {
+    header('Content-Type: text/html; charset=utf-8');
+}
+
 require_once 'src/Database.php';
 require_once 'src/models/User.php';
 require_once 'src/models/Event.php';
@@ -23,8 +28,8 @@ $userId = AuthService::getCurrentUserId();
 $isRegistered = Registration::isUserRegistered($eventId, $userId);
 $hasCapacity = Registration::hasAvailableCapacity($eventId);
 
-// Handle registration
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isRegistered && $hasCapacity) {
+// Handle registration - BLOCK ADMIN
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isRegistered && $hasCapacity && !AuthService::isAdmin()) {
     $registration = new Registration($eventId, $userId);
     
     if ($registration->save()) {
@@ -38,152 +43,122 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isRegistered && $hasCapacity) {
         $_SESSION['error'] = 'Une erreur est survenue lors de l\'inscription.';
     }
 }
-
-$pageTitle = $event->getTitle();
-require_once 'views/layouts/header.php';
 ?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo htmlspecialchars($event->getTitle()); ?> - Événements</title>
+    <link rel="stylesheet" href="/public/css/style.css">
+</head>
+<body>
+    <header class="main-header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="index.php" class="nav-brand">
+                    <h1>Événements</h1>
+                </a>
+                
+                <ul class="nav-menu">
+                    <li><a href="index.php">Accueil</a></li>
+                    <?php if (AuthService::isLoggedIn() && !AuthService::isAdmin()): ?>
+                        <li><a href="my_registrations.php">Mes inscriptions</a></li>
+                    <?php endif; ?>
+                    <?php if (AuthService::isAdmin()): ?>
+                        <li><a href="admin/index.php" class="admin-link">Admin</a></li>
+                    <?php endif; ?>
+                    <li>
+                        <span class="user-welcome">
+                            Bonjour, <?php echo htmlspecialchars($_SESSION['user_name']); ?>
+                        </span>
+                    </li>
+                    <li><a href="logout.php">Déconnexion</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
 
-<div class="container">
-    <div class="event-detail">
-        <div class="event-header-section">
-            <h1><?php echo htmlspecialchars($event->getTitle()); ?></h1>
-            <div class="event-meta">
-                <span class="event-date-large">
-                    📅 <?php echo $event->getEventDate()->format('d/m/Y à H:i'); ?>
-                </span>
-                <span class="event-location-large">
-                    📍 <?php echo htmlspecialchars($event->getLocation()); ?>
-                </span>
-                <span class="event-capacity-large">
-                    👥 <?php echo $event->getCapacity(); ?> places
-                </span>
+    <main class="main-content">
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert alert-success">
+                <?php 
+                echo htmlspecialchars($_SESSION['success']);
+                unset($_SESSION['success']);
+                ?>
             </div>
-        </div>
-        
-        <div class="event-content">
-            <div class="event-description-full">
-                <h2>Description</h2>
-                <p><?php echo nl2br(htmlspecialchars($event->getDescription())); ?></p>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-error">
+                <?php 
+                echo htmlspecialchars($_SESSION['error']);
+                unset($_SESSION['error']);
+                ?>
             </div>
-            
-            <div class="event-registration-section">
-                <?php if ($isRegistered): ?>
-                    <div class="alert alert-success">
-                        ✅ Vous êtes déjà inscrit à cet événement.
-                    </div>
-                    <a href="my_registrations.php" class="btn btn-primary">
-                        Voir mes inscriptions
-                    </a>
-                <?php elseif (!$hasCapacity): ?>
-                    <div class="alert alert-error">
-                        ❌ Cet événement est complet.
-                    </div>
-                <?php else: ?>
-                    <form method="post" class="registration-form">
-                        <div class="form-group">
-                            <h3>Confirmer votre inscription</h3>
-                            <p>En vous inscrivant, vous recevrez un email de confirmation avec tous les détails de l'événement.</p>
+        <?php endif; ?>
+
+        <div class="container">
+            <div class="event-detail">
+                <div class="event-header-section">
+                    <h1><?php echo htmlspecialchars($event->getTitle()); ?></h1>
+                    <div class="event-meta">
+                        <div class="event-date-large">
+                            📅 <?php 
+                            $date = new DateTime($event->getEventDate());
+                            echo $date->format('d/m/Y H:i');
+                            ?>
                         </div>
-                        
-                        <button type="submit" class="btn btn-success btn-large">
-                            S'inscrire à cet événement
-                        </button>
-                    </form>
-                <?php endif; ?>
+                        <div class="event-location-large">
+                            📍 <?php echo htmlspecialchars($event->getLocation()); ?>
+                        </div>
+                        <div class="event-capacity-large">
+                            👥 <?php echo $event->getCapacity(); ?> places
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="event-description-full">
+                    <h2>Description</h2>
+                    <p><?php echo nl2br(htmlspecialchars($event->getDescription())); ?></p>
+                </div>
+                
+                <div class="event-registration-section">
+                    <?php if (AuthService::isAdmin()): ?>
+                        <div class="alert alert-info">
+                            👨‍💼 En tant qu'administrateur, vous ne pouvez pas vous inscrire aux événements.
+                        </div>
+                    <?php elseif ($isRegistered): ?>
+                        <div class="alert alert-success">
+                            ✅ Vous êtes déjà inscrit à cet événement.
+                        </div>
+                        <a href="my_registrations.php" class="btn btn-primary">
+                            Voir mes inscriptions
+                        </a>
+                    <?php elseif (!$hasCapacity): ?>
+                        <div class="alert alert-error">
+                            ❌ Cet événement est complet.
+                        </div>
+                    <?php else: ?>
+                        <form method="post" class="registration-form">
+                            <div class="form-group">
+                                <h3>Confirmer votre inscription</h3>
+                                <p>Vous allez vous inscrire à cet événement. Un email de confirmation vous sera envoyé.</p>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-large">
+                                ✅ M'inscrire à cet événement
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
-    </div>
-</div>
+    </main>
 
-<style>
-.event-detail {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.event-header-section {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
-}
-
-.event-header-section h1 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    color: #2c3e50;
-}
-
-.event-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 30px;
-    margin-top: 20px;
-}
-
-.event-date-large,
-.event-location-large,
-.event-capacity-large {
-    font-size: 1.1rem;
-    color: #666;
-}
-
-.event-content {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.event-description-full h2 {
-    margin-bottom: 20px;
-    color: #2c3e50;
-}
-
-.event-description-full p {
-    line-height: 1.8;
-    color: #555;
-    margin-bottom: 30px;
-}
-
-.event-registration-section {
-    border-top: 2px solid #f1f3f4;
-    padding-top: 30px;
-    margin-top: 30px;
-}
-
-.registration-form {
-    text-align: center;
-    max-width: 400px;
-    margin: 0 auto;
-}
-
-.registration-form h3 {
-    margin-bottom: 15px;
-    color: #2c3e50;
-}
-
-.btn-large {
-    padding: 15px 30px;
-    font-size: 1.1rem;
-}
-
-@media (max-width: 768px) {
-    .event-header-section h1 {
-        font-size: 2rem;
-    }
-    
-    .event-meta {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .event-header-section,
-    .event-content {
-        padding: 20px;
-    }
-}
-</style>
-
-<?php require_once 'views/layouts/footer.php'; ?>
+    <footer class="main-footer">
+        <div class="footer-container">
+            <p>&copy; <?php echo date('Y'); ?> Événements. Tous droits réservés.</p>
+        </div>
+    </footer>
+</body>
+</html>

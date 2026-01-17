@@ -1,4 +1,9 @@
 <?php
+// Set UTF-8 header for proper character encoding
+if (headers_sent() === false) {
+    header('Content-Type: text/html; charset=utf-8');
+}
+
 require_once 'src/Database.php';
 require_once 'src/models/User.php';
 require_once 'src/services/AuthService.php';
@@ -56,9 +61,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Inscription';
-require_once 'views/layouts/header.php';
 ?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Événements</title>
+    <link rel="stylesheet" href="/public/css/style.css">
+</head>
+<body>
+    <header class="main-header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="index.php" class="nav-brand">
+                    <h1>Événements</h1>
+                </a>
+                
+                <ul class="nav-menu">
+                    <li><a href="index.php">Accueil</a></li>
+                    <li><a href="login.php">Connexion</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert alert-success">
+                <?php 
+                echo htmlspecialchars($_SESSION['success']);
+                unset($_SESSION['success']);
+                ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-error">
+                <?php 
+                echo htmlspecialchars($_SESSION['error']);
+                unset($_SESSION['error']);
+                ?>
+            </div>
+        <?php endif; ?>
 
 <div class="container">
     <div class="auth-container">
@@ -189,4 +234,12 @@ require_once 'views/layouts/header.php';
 }
 </style>
 
-<?php require_once 'views/layouts/footer.php'; ?>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-container">
+            <p>&copy; <?php echo date('Y'); ?> Événements. Tous droits réservés.</p>
+        </div>
+    </footer>
+</body>
+</html>

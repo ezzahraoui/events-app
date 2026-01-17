@@ -110,18 +110,52 @@ $event = new Event();
 - **Event.php** : Gestion événements  
 - **Registration.php** : Gestion inscriptions
 
-### Controllers (src/controllers/)
-- **EventController.php** : Logique événements
-- **UserController.php** : Logique utilisateurs
+### Pages Racine (communes)
+- **index.php** : Page d'accueil (tous)
+- **login.php** : Connexion (tous)
+- **register.php** : Inscription (tous)
+- **logout.php** : Déconnexion (tous)
+- **403.php** : Erreur accès refusé (tous)
+- **event_detail.php** : Détails événement + inscription (users connectés)
+- **my_registrations.php** : Inscriptions personnelles (users uniquement)
+
+### Pages Admin (admin/)
+- **index.php** : Dashboard admin avec tableau événements
+- **create_event.php** : Formulaire création événement
+- **edit_event.php** : Formulaire modification événement
+- **delete_event.php** : Suppression événement
+- **registrations.php** : Vue globale des inscriptions
 
 ### Services (src/services/)
-- **AuthService.php** : Gestion authentification
+- **AuthService.php** : Gestion authentification + rôles
 - **EmailService.php** : Envoi emails (MailHog)
 
-### Views (views/)
-- **layouts/** : header.php, footer.php
-- **events/** : list.php, detail.php
-- **auth/** : login.php, register.php
+### Header/Footer (style étudiant)
+- **Pages racine** : Header/footer dupliqués dans chaque fichier
+- **Pages admin** : Header/footer dupliqués dans chaque fichier
+- **Aucun système de templates** : Code PHP simple et direct
+
+## 🎭 Rôles et Permissions
+
+### Rôle Admin (ROLE_ADMIN)
+- **PEUT** : Créer, modifier, supprimer les événements
+- **PEUT** : Voir toutes les inscriptions (vue globale)
+- **NE PEUT PAS** : S'inscrire aux événements
+- **NE PEUT PAS** : Accéder à "Mes inscriptions"
+- **ACCÈS** : Dashboard admin `/admin/index.php`
+
+### Rôle User (ROLE_USER)
+- **PEUT** : Voir les événements publiés
+- **PEUT** : S'inscrire aux événements
+- **PEUT** : Gérer ses inscriptions personnelles
+- **NE PEUT PAS** : Accéder aux pages admin
+- **ACCÈS** : Interface utilisateur standard
+
+### Contrôle d'Accès
+- **Pages publiques** : `index.php`, `login.php`, `register.php`, `logout.php`, `403.php`
+- **Pages authentifiées** : `event_detail.php`, `my_registrations.php`
+- **Pages admin** : Toutes dans `/admin/` (accès refusé = 403)
+- **Redirection admin** : Admin connecté redirigé vers dashboard
 
 ## 🎨 CSS Simple avec Cartes
 
@@ -345,42 +379,38 @@ public function debug($data) {
 }
 ```
 
-## 📁 Structure des Fichiers
+## 📁 Structure des Fichiers par Rôles
 
 ```
 /
 ├── docker-compose.yml          # Configuration Docker
 ├── Dockerfile                  # Image PHP personnalisée
-├── index.php                   # Page d'accueil
-├── login.php                   # Connexion
-├── register.php                # Inscription
-├── 403.php                     # Accès refusé
+├── index.php                   # Page d'accueil (tous)
+├── login.php                   # Connexion (tous)
+├── register.php                # Inscription (tous)
+├── logout.php                  # Déconnexion (tous)
+├── 403.php                     # Erreur accès refusé (tous)
+├── event_detail.php            # Détails événement (users connectés)
+├── my_registrations.php        # Inscriptions personnelles (users uniquement)
+├── admin/                      # Pages admin-only
+│   ├── index.php               # Dashboard admin
+│   ├── create_event.php        # Créer événement
+│   ├── edit_event.php          # Modifier événement
+│   ├── delete_event.php        # Supprimer événement
+│   └── registrations.php       # Vue globale inscriptions
 ├── src/
 │   ├── Database.php            # Singleton BDD
 │   ├── models/
 │   │   ├── User.php            # Class User
 │   │   ├── Event.php           # Class Event
 │   │   └── Registration.php    # Class Registration
-│   ├── services/
-│   │   ├── AuthService.php     # Gestion auth
-│   │   └── EmailService.php    # Envoi emails
-│   └── controllers/
-│       ├── EventController.php # Logique événements
-│       └── UserController.php  # Logique utilisateurs
+│   └── services/
+│       ├── AuthService.php     # Gestion auth + rôles
+│       └── EmailService.php    # Envoi emails
+├── (aucun views/ - header/footer dupliqués dans chaque page, style étudiant)
 ├── public/
-│   ├── css/
-│   │   └── style.css           # CSS avec cartes
-│   └── uploads/                # Images uploadées
-├── views/
-│   ├── layouts/
-│   │   ├── header.php          # En-tête HTML
-│   │   └── footer.php          # Pied de page HTML
-│   ├── events/
-│   │   ├── list.php            # Grille de cartes
-│   │   └── detail.php          # Détail événement
-│   └── auth/
-│       ├── login.php           # Formulaire connexion
-│       └── register.php        # Formulaire inscription
+│   └── css/
+│       └── style.css           # CSS avec cartes
 └── database/
     └── script.sql              # Script SQL initial
 ```
