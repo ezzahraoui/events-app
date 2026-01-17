@@ -1,0 +1,283 @@
+<?php
+class Event {
+    private ?int $id = null;
+    private string $title;
+    private string $description;
+    private DateTime $eventDate;
+    private string $location;
+    private int $capacity;
+    private ?string $imageUrl = null;
+    private string $status = 'draft';
+    private ?int $createdBy = null;
+    private ?DateTime $createdAt = null;
+    private ?DateTime $updatedAt = null;
+    
+    public function __construct() {
+        $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
+    }
+    
+    // Getters
+    public function getId(): ?int {
+        return $this->id;
+    }
+    
+    public function getTitle(): string {
+        return $this->title;
+    }
+    
+    public function getDescription(): string {
+        return $this->description;
+    }
+    
+    public function getEventDate(): DateTime {
+        return $this->eventDate;
+    }
+    
+    public function getLocation(): string {
+        return $this->location;
+    }
+    
+    public function getCapacity(): int {
+        return $this->capacity;
+    }
+    
+    public function getImageUrl(): ?string {
+        return $this->imageUrl;
+    }
+    
+    public function getStatus(): string {
+        return $this->status;
+    }
+    
+    public function getCreatedBy(): ?int {
+        return $this->createdBy;
+    }
+    
+    public function getCreatedAt(): ?DateTime {
+        return $this->createdAt;
+    }
+    
+    public function getUpdatedAt(): ?DateTime {
+        return $this->updatedAt;
+    }
+    
+    // Setters
+    public function setTitle(string $title): void {
+        $this->title = trim($title);
+        $this->updatedAt = new DateTime();
+    }
+    
+    public function setDescription(string $description): void {
+        $this->description = trim($description);
+        $this->updatedAt = new DateTime();
+    }
+    
+    public function setEventDate(DateTime $date): void {
+        $this->eventDate = $date;
+        $this->updatedAt = new DateTime();
+    }
+    
+    public function setLocation(string $location): void {
+        $this->location = trim($location);
+        $this->updatedAt = new DateTime();
+    }
+    
+    public function setCapacity(int $capacity): void {
+        $this->capacity = $capacity;
+        $this->updatedAt = new DateTime();
+    }
+    
+    public function setImageUrl(?string $url): void {
+        $this->imageUrl = $url;
+        $this->updatedAt = new DateTime();
+    }
+    
+    public function setStatus(string $status): void {
+        if (in_array($status, ['draft', 'published', 'cancelled'])) {
+            $this->status = $status;
+            $this->updatedAt = new DateTime();
+        }
+    }
+    
+    public function setCreatedBy(int $userId): void {
+        $this->createdBy = $userId;
+        $this->updatedAt = new DateTime();
+    }
+    
+    // Database methods
+    public function save(): bool {
+        $database = Database::getInstance();
+        
+        if ($this->id === null) {
+            // Insert new event
+            $sql = "INSERT INTO events (title, description, event_date, location, capacity, image_url, status, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $database->prepare($sql);
+            
+            $eventDateStr = $this->eventDate->format('Y-m-d H:i:s');
+            $stmt->bind_param("sssisssi", 
+                $this->title, 
+                $this->description, 
+                $eventDateStr, 
+                $this->location, 
+                $this->capacity, 
+                $this->imageUrl, 
+                $this->status, 
+                $this->createdBy
+            );
+            
+            if ($stmt->execute()) {
+                $this->id = $database->getLastInsertId();
+                $stmt->close();
+                return true;
+            }
+            $stmt->close();
+        } else {
+            // Update existing event
+            $sql = "UPDATE events SET title = ?, description = ?, event_date = ?, location = ?, capacity = ?, image_url = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+            $stmt = $database->prepare($sql);
+            
+            $eventDateStr = $this->eventDate->format('Y-m-d H:i:s');
+            $stmt->bind_param("sssisssi", 
+                $this->title, 
+                $this->description, 
+                $eventDateStr, 
+                $this->location, 
+                $this->capacity, 
+                $this->imageUrl, 
+                $this->status, 
+                $this->id
+            );
+            
+            if ($stmt->execute()) {
+                $stmt->close();
+                return true;
+            }
+            $stmt->close();
+        }
+        
+        return false;
+    }
+    
+    public static function findById(int $id): ?Event {
+        $database = Database::getInstance();
+        $sql = "SELECT * FROM events WHERE id = ?";
+        $stmt = $database->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $event = new self();
+            $event->id = $row['id'];
+            $event->title = $row['title'];
+            $event->description = $row['description'];
+            $event->eventDate = new DateTime($row['event_date']);
+            $event->location = $row['location'];
+            $event->capacity = $row['capacity'];
+            $event->imageUrl = $row['image_url'];
+            $event->status = $row['status'];
+            $event->createdBy = $row['created_by'];
+            $event->createdAt = new DateTime($row['created_at']);
+            $event->updatedAt = new DateTime($row['updated_at']);
+            $stmt->close();
+            return $event;
+        }
+        
+        $stmt->close();
+        return null;
+    }
+    
+    public static function findAllPublished(): array {
+        $database = Database::getInstance();
+        $sql = "SELECT * FROM events WHERE status = 'published' ORDER BY event_date ASC";
+        $result = $database->query($sql);
+        
+        $events = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $event = new self();
+                $event->id = $row['id'];
+                $event->title = $row['title'];
+                $event->description = $row['description'];
+                $event->eventDate = new DateTime($row['event_date']);
+                $event->location = $row['location'];
+                $event->capacity = $row['capacity'];
+                $event->imageUrl = $row['image_url'];
+                $event->status = $row['status'];
+                $event->createdBy = $row['created_by'];
+                $event->createdAt = new DateTime($row['created_at']);
+                $event->updatedAt = new DateTime($row['updated_at']);
+                $events[] = $event;
+            }
+        }
+        
+        return $events;
+    }
+    
+    public function delete(): bool {
+        if ($this->id === null) {
+            return false;
+        }
+        
+        $database = Database::getInstance();
+        $sql = "DELETE FROM events WHERE id = ?";
+        $stmt = $database->prepare($sql);
+        $stmt->bind_param("i", $this->id);
+        
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true;
+        }
+        
+        $stmt->close();
+        return false;
+    }
+    
+    public function validate(): array {
+        $errors = [];
+        
+        // Title validation
+        if (empty($this->title)) {
+            $errors[] = "Le titre est obligatoire";
+        } elseif (strlen($this->title) < 3) {
+            $errors[] = "Le titre doit contenir au moins 3 caractères";
+        } elseif (strlen($this->title) > 200) {
+            $errors[] = "Le titre ne doit pas dépasser 200 caractères";
+        }
+        
+        // Description validation
+        if (empty($this->description)) {
+            $errors[] = "La description est obligatoire";
+        } elseif (strlen($this->description) < 10) {
+            $errors[] = "La description doit contenir au moins 10 caractères";
+        }
+        
+        // Location validation
+        if (empty($this->location)) {
+            $errors[] = "Le lieu est obligatoire";
+        } elseif (strlen($this->location) > 200) {
+            $errors[] = "Le lieu ne doit pas dépasser 200 caractères";
+        }
+        
+        // Capacity validation
+        if (!is_numeric($this->capacity) || $this->capacity <= 0) {
+            $errors[] = "La capacité doit être un nombre positif";
+        } elseif ($this->capacity > 10000) {
+            $errors[] = "La capacité ne peut pas dépasser 10000 personnes";
+        }
+        
+        // Event date validation
+        $now = new DateTime();
+        if ($this->eventDate <= $now) {
+            $errors[] = "La date de l'événement doit être dans le futur";
+        }
+        
+        // Status validation
+        if (!in_array($this->status, ['draft', 'published', 'cancelled'])) {
+            $errors[] = "Le statut n'est pas valide";
+        }
+        
+        return $errors;
+    }
+}
