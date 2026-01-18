@@ -309,25 +309,7 @@ body {
     border-color: #e74c3c;
 }
 
-.error-text {
-    color: #e74c3c;
-    font-size: 0.9rem;
-    margin-top: 5px;
-}
 
-/* Footer */
-.main-footer {
-    background: #2c3e50;
-    color: white;
-    text-align: center;
-    padding: 40px 20px;
-    margin-top: 60px;
-}
-
-.footer-container p {
-    margin-bottom: 10px;
-    opacity: 0.9;
-}
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -363,23 +345,3 @@ body {
     }
 }
 
-/* Utility classes */
-.text-center {
-    text-align: center;
-}
-
-.text-muted {
-    color: #666;
-}
-
-.mt-20 {
-    margin-top: 20px;
-}
-
-.mb-20 {
-    margin-bottom: 20px;
-}
-
-.p-20 {
-    padding: 20px;
-}
