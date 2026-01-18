@@ -4,9 +4,9 @@ if (headers_sent() === false) {
     header('Content-Type: text/html; charset=utf-8');
 }
 
-require_once __DIR__ . '/../src/Database.php';
-require_once __DIR__ . '/../src/models/Event.php';
-require_once __DIR__ . '/../src/services/AuthService.php';
+require_once '../src/Database.php';
+require_once '../src/models/Event.php';
+require_once '../src/services/AuthService.php';
 
 session_start();
 
