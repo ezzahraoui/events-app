@@ -111,19 +111,20 @@ $event = new Event();
 - **Registration.php** : Gestion inscriptions
 
 ### Pages Racine (communes)
-- **index.php** : Page d'accueil (tous)
+- **index.php** : Page d'accueil avec tous les événements (tous)
 - **login.php** : Connexion (tous)
 - **register.php** : Inscription (tous)
 - **logout.php** : Déconnexion (tous)
 - **403.php** : Erreur accès refusé (tous)
 - **event_detail.php** : Détails événement + inscription (users connectés)
 - **my_registrations.php** : Inscriptions personnelles (users uniquement)
+- **cancel_registration.php** : POST handler pour annuler (users)
 
 ### Pages Admin (admin/)
-- **index.php** : Dashboard admin avec tableau événements
+- **index.php** : Dashboard admin avec tous les événements
 - **create_event.php** : Formulaire création événement
 - **edit_event.php** : Formulaire modification événement
-- **delete_event.php** : Suppression événement
+- **delete_event.php** : POST handler suppression (hard-delete)
 - **registrations.php** : Vue globale des inscriptions
 
 ### Services (src/services/)
@@ -138,24 +139,39 @@ $event = new Event();
 ## 🎭 Rôles et Permissions
 
 ### Rôle Admin (ROLE_ADMIN)
-- **PEUT** : Créer, modifier, supprimer les événements
-- **PEUT** : Voir toutes les inscriptions (vue globale)
-- **NE PEUT PAS** : S'inscrire aux événements
-- **NE PEUT PAS** : Accéder à "Mes inscriptions"
-- **ACCÈS** : Dashboard admin `/admin/index.php`
+- ✅ **PEUT** : Créer, modifier, supprimer les événements
+- ✅ **PEUT** : Voir toutes les inscriptions (vue globale)
+- ✅ **PEUT** : Accéder à `/admin/*`
+- ❌ **NE PEUT PAS** : S'inscrire aux événements
+- ❌ **NE PEUT PAS** : Voir "Mes inscriptions"
+- ❌ **NE PEUT PAS** : Voir page `/event_detail.php` (redirigé à `/admin/index.php`)
 
 ### Rôle User (ROLE_USER)
-- **PEUT** : Voir les événements publiés
-- **PEUT** : S'inscrire aux événements
-- **PEUT** : Gérer ses inscriptions personnelles
-- **NE PEUT PAS** : Accéder aux pages admin
-- **ACCÈS** : Interface utilisateur standard
+- ✅ **PEUT** : Voir TOUS les événements (published + draft + cancelled)
+- ✅ **PEUT** : S'inscrire aux événements disponibles
+- ✅ **PEUT** : Consulter ses inscriptions personnelles
+- ✅ **PEUT** : Annuler ses inscriptions
+- ❌ **NE PEUT PAS** : Accéder aux pages `/admin/*`
+- ❌ **NE PEUT PAS** : Créer/modifier/supprimer des événements
 
-### Contrôle d'Accès
-- **Pages publiques** : `index.php`, `login.php`, `register.php`, `logout.php`, `403.php`
-- **Pages authentifiées** : `event_detail.php`, `my_registrations.php`
-- **Pages admin** : Toutes dans `/admin/` (accès refusé = 403)
-- **Redirection admin** : Admin connecté redirigé vers dashboard
+### Contrôle d'Accès & Redirections
+```php
+// Pages PUBLIQUES (tous)
+index.php, login.php, register.php, logout.php, 403.php
+↓
+// Pages UTILISATEURS (require login + not admin)
+event_detail.php, my_registrations.php, cancel_registration.php
+↓
+// Pages ADMIN (require admin)
+admin/index.php, admin/create_event.php, admin/edit_event.php, 
+admin/delete_event.php, admin/registrations.php
+```
+
+### Comportements Spéciaux
+1. **Admin accède à `index.php`** → Redirection automatique vers `/admin/index.php`
+2. **User accède à `/admin/*`** → Erreur 403
+3. **Toute page `/admin/*` doit vérifier `AuthService::requireAdmin()`**
+4. **Hard-delete** : Suppression définitive sans confirmation
 
 ## 🎨 CSS Simple avec Cartes
 
@@ -343,41 +359,36 @@ class AuthService {
 }
 ```
 
-## 🧪 Tests et Développement
+## 🧪 Tests Manuels Obligatoires
 
-### Tests manuels (obligatoires)
-1. **Inscription double refusée**
-   - User s'inscrit à un événement
-   - Tente de s'inscrire à nouveau
-   - Résultat : Message "Déjà inscrit"
+### 1. Inscription Unique
+- User s'inscrit à un événement
+- Tente de s'inscrire à nouveau
+- ✅ Résultat attendu: Message "Vous êtes déjà inscrit"
 
-2. **Capacité atteinte refus**
-   - Créer événement avec capacité = 2
-   - User1 et User2 s'inscrivent
-   - User3 tente de s'inscrire
-   - Résultat : Message "Événement complet"
+### 2. Capacité Atteinte
+- Admin crée événement avec capacité = 2
+- User1 et User2 s'inscrivent
+- User3 tente de s'inscrire
+- ✅ Résultat attendu: Message "Événement complet"
 
-3. **Email MailHog**
-   - User s'inscrit à un événement
-   - Vérifier email reçu dans MailHog
-   - URL : http://localhost:8025
+### 3. Emails MailHog
+- User s'inscrit à un événement
+- Accéder à http://localhost:8025
+- ✅ Résultat attendu: Email de confirmation reçu
 
-4. **Owner-check 403**
-   - User1 consulte ses inscriptions
-   - Tente d'accéder aux inscriptions de User2
-   - Résultat : Page 403
+### 4. Accès Admin Protégé
+- User normal accède à `/admin/index.php`
+- ✅ Résultat attendu: Page 403 (Accès refusé)
 
-### Débogage
-```php
-// Pour déboguer (à supprimer en production)
-var_dump($variable);
-error_log("Message de debug: " . print_r($data, true));
+### 5. Redirection Admin
+- Admin connecté accède à `index.php`
+- ✅ Résultat attendu: Redirection vers `/admin/index.php`
 
-// Dans les services
-public function debug($data) {
-    error_log("DEBUG: " . print_r($data, true));
-}
-```
+### 6. Hard-Delete Événement
+- Admin crée événement + User inscrit
+- Admin supprime l'événement
+- ✅ Résultat attendu: Événement supprimé + inscription supprimée aussi (CASCADE)
 
 ## 📁 Structure des Fichiers par Rôles
 
@@ -415,20 +426,130 @@ public function debug($data) {
     └── script.sql              # Script SQL initial
 ```
 
-## 🚀 Règles de Développement
+## 🚀 Principes de Développement
+
+### Philosophie: SIMPLE et MINIMAL
+
+**L'application suit ces principes pour rester maintenable par des débutants:**
+
+1. **Zéro feature bonus** - Seulement ce qui est nécessaire
+2. **Hard-delete** - Pas de soft-delete, juste supprimer
+3. **Pas d'annulation** - Les users gardent leurs inscriptions
+4. **Tous les événements** - Pas de tri/recherche, afficher tous
+5. **Pas de status** - Les événements existent simplement
+6. **Code débutant** - Simple, lisible, pas de patterns complexes
+7. **Duplication acceptée** - Style étudiant: header/footer copiés
 
 ### Code POO
 - **Un fichier = une classe** : Organisation claire
-- **Includes explicites** : require_once en haut de chaque fichier
+- **Includes explicites** : `require_once` en haut de chaque fichier
+- **Pas de magic** : Code lisible et compréhensible
+- **Pas de namespaces** : Classes simples, accès direct
+- **Getters/Setters simples** : Pas de logique complexe
+- **Comments français** : Pour le contexte académique
+
+### Sécurité
+- **Prepared Statements** : MySQLi uniquement, jamais de string interpolation
+- **Password Hashing** : PASSWORD_DEFAULT pour tous les mots de passe
+- **Validation Serveur** : Toujours côté serveur, jamais client-side uniquement
+- **Session Regeneration** : Appelé à chaque login pour sécurité
+- **Owner-check** : Vérification de qui fait quoi sur les ressources
+- **Admin-check** : `AuthService::requireAdmin()` dans chaque `/admin/*`
+
+### Interface & CSS
+- **HTML Sémantique** : Pas de divs inutiles
+- **CSS Simple** : Pas de préprocesseur (SASS/LESS)
+- **Design Moderne** : Cartes avec ombres et transitions simples
+- **Responsive** : Grid CSS auto-fill, pas de mobile-first complexe
+- **Animations Légères** : Juste `transition: all 0.3s ease` au hover
+- **Pas de Framework** : Pas de Bootstrap, Tailwind, etc.
+
+### Emails
+- **MailHog uniquement** : Pour développement seulement
+- **Pas d'HTML** : Emails en texte brut
+- **Templates simples** : Juste du texte avec variables
+- **Pas de staging** : Pas d'environnement staging, test local uniquement
+
+### Base de Données
+- **UTF8MB4** : Support complet des caractères spéciaux
+- **Contraintes FK** : Cascade delete pour maintenir l'intégrité
+- **Pas de migrations** : Un seul script SQL initial
+- **Pas d'ORM** : MySQLi natif uniquement
+
+## 📝 Exemple de Code Attendu
+
+**✅ CODE BON (Style attendu):**
+```php
+<?php
+require_once 'src/Database.php';
+require_once 'src/models/Event.php';
+require_once 'src/services/AuthService.php';
+
+session_start();
+AuthService::requireAdmin();
+
+$events = Event::findAll();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $event = new Event();
+    $event->setTitle($_POST['title'] ?? '');
+    $event->setDescription($_POST['description'] ?? '');
+    
+    $errors = $event->validate();
+    if (empty($errors)) {
+        $event->save();
+        $_SESSION['success'] = 'Événement créé !';
+        header('Location: index.php');
+        exit;
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Header simple dupliqué -->
+</head>
+<body>
+    <!-- Contenu -->
+</body>
+</html>
+```
+
+**❌ CODE MAUVAIS (À éviter):**
+```php
+<?php
+// ❌ Namespaces complexes
+namespace App\Controllers\Admin;
+
+// ❌ Dependency Injection Container
+use Container;
+
+// ❌ Builder Pattern
+$event = EventBuilder::new()
+    ->withTitle($data['title'])
+    ->withDescription($data['description'])
+    ->build();
+
+// ❌ Traits et interfaces
+class EventController implements EventControllerInterface { ... }
+
+// ❌ Validation complexe
+$validator->validate($event, EventValidationRules::class);
+```
+
+## 🎯 Règles de Développement
+
+### Code POO
+- **Un fichier = une classe** : Organisation claire
+- **Includes explicites** : `require_once` en haut de chaque fichier
 - **Pas de magic** : Code lisible et compréhensible
 - **Comments français** : Pour le contexte académique
 - **Error handling** : try/catch simples avec messages clairs
 
 ### Sécurité
-- **SQL** : Mysqli prepared statements uniquement
+- **SQL** : MySQLi prepared statements uniquement
 - **Validation** : Toujours côté serveur
-- **Sessions** : Démarrer avec session_start()
-- **Upload** : Extensions jpg/png/pdf, taille max 2MB
+- **Sessions** : Démarrer avec `session_start()`
 - **Owner-check** : Vérification systématique des permissions
 
 ### Interface

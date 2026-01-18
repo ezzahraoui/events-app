@@ -139,14 +139,13 @@ $registrations = Registration::findByUser($userId);
                             <?php 
                             // Allow cancellation only if event is in the future
                             $now = new DateTime();
-                            if ($registration->eventDate > $now): ?>
-                                <button 
-                                    type="button" 
-                                    class="btn btn-danger" 
-                                    onclick="confirmCancel(<?php echo $registration->getEventId(); ?>)"
-                                >
-                                    Annuler
-                                </button>
+                            if ($registration->eventDate && $registration->eventDate > $now): ?>
+                                <form method="post" action="cancel_registration.php" style="display:inline;">
+                                    <input type="hidden" name="event_id" value="<?php echo $registration->getEventId(); ?>">
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette inscription ?')">
+                                        Annuler
+                                    </button>
+                                </form>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -155,26 +154,6 @@ $registrations = Registration::findByUser($userId);
         <?php endif; ?>
     </div>
 </div>
-
-<script>
-function confirmCancel(eventId) {
-    if (confirm('Êtes-vous sûr de vouloir annuler cette inscription ?')) {
-        // Create form for cancellation
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'cancel_registration.php';
-        
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'event_id';
-        input.value = eventId;
-        
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-</script>
 
 <style>
 .registrations-section {

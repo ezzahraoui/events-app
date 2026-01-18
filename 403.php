@@ -17,14 +17,14 @@
 
             <div class="error-actions">
                 <a href="index.php" class="btn btn-primary">Retour à l'accueil</a>
-                <?php 
+                <?php
                 session_start();
-                if (isset($_SESSION['user_id'])): 
+                if (isset($_SESSION['user_id'])):
                     if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'ROLE_ADMIN'):
                 ?>
-                    <a href="admin/index.php" class="btn btn-secondary">Admin</a>
+                        <a href="admin/index.php" class="btn btn-secondary">Admin</a>
                     <?php else: ?>
-                    <a href="my_registrations.php" class="btn btn-secondary">Mes inscriptions</a>
+                        <a href="my_registrations.php" class="btn btn-secondary">Mes inscriptions</a>
                     <?php endif; ?>
                 <?php else: ?>
                     <a href="login.php" class="btn btn-secondary">Se connecter</a>

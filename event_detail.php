@@ -31,11 +31,11 @@ $hasCapacity = Registration::hasAvailableCapacity($eventId);
 // Handle registration - BLOCK ADMIN
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isRegistered && $hasCapacity && !AuthService::isAdmin()) {
     $registration = new Registration($eventId, $userId);
-    
+
     if ($registration->save()) {
         // Send confirmation email
         EmailService::sendRegistrationConfirmation($userId, $eventId);
-        
+
         $_SESSION['success'] = 'Inscription confirmée ! Vous recevrez un email de confirmation.';
         header('Location: my_registrations.php');
         exit;
@@ -46,12 +46,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isRegistered && $hasCapacity && !
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($event->getTitle()); ?> - Événements</title>
     <link rel="stylesheet" href="/public/css/style.css">
 </head>
+
 <body>
     <header class="main-header">
         <nav class="navbar">
@@ -59,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isRegistered && $hasCapacity && !
                 <a href="index.php" class="nav-brand">
                     <h1>Événements</h1>
                 </a>
-                
+
                 <ul class="nav-menu">
                     <li><a href="index.php">Accueil</a></li>
                     <?php if (AuthService::isLoggedIn() && !AuthService::isAdmin()): ?>
@@ -82,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isRegistered && $hasCapacity && !
     <main class="main-content">
         <?php if (isset($_SESSION['success'])): ?>
             <div class="alert alert-success">
-                <?php 
+                <?php
                 echo htmlspecialchars($_SESSION['success']);
                 unset($_SESSION['success']);
                 ?>
@@ -91,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isRegistered && $hasCapacity && !
 
         <?php if (isset($_SESSION['error'])): ?>
             <div class="alert alert-error">
-                <?php 
+                <?php
                 echo htmlspecialchars($_SESSION['error']);
                 unset($_SESSION['error']);
                 ?>
@@ -104,10 +106,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isRegistered && $hasCapacity && !
                     <h1><?php echo htmlspecialchars($event->getTitle()); ?></h1>
                     <div class="event-meta">
                         <div class="event-date-large">
-                            📅 <?php 
-                            $date = new DateTime($event->getEventDate());
-                            echo $date->format('d/m/Y H:i');
-                            ?>
+                            📅 <?php
+                                try {
+                                    $date = $event->getEventDate();
+                                    echo $date->format('d/m/Y H:i');
+                                } catch (Exception $e) {
+                                    echo 'Date invalide';
+                                }
+                                ?>
                         </div>
                         <div class="event-location-large">
                             📍 <?php echo htmlspecialchars($event->getLocation()); ?>
@@ -117,12 +123,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isRegistered && $hasCapacity && !
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="event-description-full">
                     <h2>Description</h2>
                     <p><?php echo nl2br(htmlspecialchars($event->getDescription())); ?></p>
                 </div>
-                
+
                 <div class="event-registration-section">
                     <?php if (AuthService::isAdmin()): ?>
                         <div class="alert alert-info">
@@ -161,4 +167,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isRegistered && $hasCapacity && !
         </div>
     </footer>
 </body>
+
 </html>
