@@ -153,8 +153,8 @@ $events = Event::findAll();
     <header class="admin-header">
         <h1>Administration - Événements</h1>
         <nav class="admin-nav">
-            <a href="../index.php" class="back">← Retour</a>
-            <a href="../logout.php">Déconnexion</a>
+            <a href="../../admin/index.php" class="back">← Retour</a>
+            <a href="../../logout.php">Déconnexion</a>
         </nav>
     </header>
 
@@ -199,15 +199,15 @@ $events = Event::findAll();
                     <tbody>
                         <?php foreach ($events as $event): ?>
                             <tr>
-                                <td><?php echo $event['id']; ?></td>
-                                <td><?php echo htmlspecialchars($event['title']); ?></td>
-                                <td><?php echo date('d/m/Y H:i', strtotime($event['event_date'])); ?></td>
-                                <td><?php echo htmlspecialchars($event['location']); ?></td>
-                                <td><?php echo $event['capacity']; ?></td>
+                                <td><?php echo $event->getId(); ?></td>
+                                <td><?php echo htmlspecialchars($event->getTitle()); ?></td>
+                                <td><?php echo $event->getEventDate()->format('d/m/Y H:i'); ?></td>
+                                <td><?php echo htmlspecialchars($event->getLocation()); ?></td>
+                                <td><?php echo $event->getCapacity(); ?></td>
                                 <td>
                                     <div class="actions">
-                                        <a href="edit.php?id=<?php echo $event['id']; ?>" class="btn btn-secondary btn-small">Modifier</a>
-                                        <a href="delete.php?id=<?php echo $event['id']; ?>" class="btn btn-danger btn-small" onclick="return confirm('Supprimer cet événement ?');">Supprimer</a>
+                                        <a href="edit.php?id=<?php echo $event->getId(); ?>" class="btn btn-secondary btn-small">Modifier</a>
+                                        <a href="delete.php?id=<?php echo $event->getId(); ?>" class="btn btn-danger btn-small" onclick="return confirm('Supprimer cet événement ?');">Supprimer</a>
                                     </div>
                                 </td>
                             </tr>

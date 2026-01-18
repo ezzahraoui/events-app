@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $event->setCreatedBy($_SESSION['user_id']);
 
     try {
-        $eventDate = DateTime::createFrom_format('Y-m-d H:i', $_POST['event_date'] ?? '');
+        $eventDate = DateTime::createFromFormat('Y-m-d H:i', $_POST['event_date'] ?? '');
         if ($eventDate) {
             $event->setEventDate($eventDate);
         } else {
@@ -185,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1>Administration - Événements</h1>
         <nav class="admin-nav">
             <a href="index.php" class="back">← Retour</a>
-            <a href="../logout.php">Déconnexion</a>
+            <a href="../../logout.php">Déconnexion</a>
         </nav>
     </header>
 

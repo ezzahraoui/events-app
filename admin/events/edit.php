@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $event->setImageUrl($_POST['image_url'] ?? '');
 
     try {
-        $eventDate = DateTime::createFrom_format('Y-m-d H:i', $_POST['event_date'] ?? '');
+        $eventDate = DateTime::createFromFormat('Y-m-d H:i', $_POST['event_date'] ?? '');
         if ($eventDate) {
             $event->setEventDate($eventDate);
         } else {
@@ -194,7 +194,7 @@ $eventDateValue = $event->getEventDate()->format('Y-m-d H:i');
         <h1>Administration - Événements</h1>
         <nav class="admin-nav">
             <a href="index.php" class="back">← Retour</a>
-            <a href="../logout.php">Déconnexion</a>
+            <a href="../../logout.php">Déconnexion</a>
         </nav>
     </header>
 

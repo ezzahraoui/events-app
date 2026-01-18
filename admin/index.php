@@ -1,6 +1,6 @@
 <?php
-require_once 'src/Database.php';
-require_once 'src/services/AuthService.php';
+require_once '../src/Database.php';
+require_once '../src/services/AuthService.php';
 
 session_start();
 AuthService::requireAdmin();
@@ -114,7 +114,7 @@ AuthService::requireAdmin();
         <h1>Administration</h1>
         <nav class="admin-nav">
             <a href="index.php">Accueil</a>
-            <a href="logout.php">Déconnexion</a>
+            <a href="../logout.php">Déconnexion</a>
         </nav>
     </header>
 

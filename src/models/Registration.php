@@ -5,6 +5,9 @@ class Registration
     private int $eventId;
     private int $userId;
     private DateTime $registrationDate;
+    private ?string $eventTitle = null;
+    private ?DateTime $eventDate = null;
+    private ?string $eventLocation = null;
 
     public function __construct(int $eventId, int $userId)
     {
@@ -34,7 +37,36 @@ class Registration
         return $this->registrationDate;
     }
 
+    public function getEventTitle(): ?string
+    {
+        return $this->eventTitle;
+    }
+
+    public function getEventDate(): ?DateTime
+    {
+        return $this->eventDate;
+    }
+
+    public function getEventLocation(): ?string
+    {
+        return $this->eventLocation;
+    }
+
     // Setters
+    public function setEventTitle(string $title): void
+    {
+        $this->eventTitle = $title;
+    }
+
+    public function setEventDate(DateTime $date): void
+    {
+        $this->eventDate = $date;
+    }
+
+    public function setEventLocation(string $location): void
+    {
+        $this->eventLocation = $location;
+    }
 
     // Database methods
     public function save(): bool
@@ -122,6 +154,9 @@ class Registration
             $registration = new self($row['event_id'], $row['user_id']);
             $registration->id = $row['id'];
             $registration->registrationDate = new DateTime($row['registration_date']);
+            $registration->eventTitle = $row['title'];
+            $registration->eventDate = new DateTime($row['event_date']);
+            $registration->eventLocation = $row['location'];
             $registrations[] = $registration;
         }
 

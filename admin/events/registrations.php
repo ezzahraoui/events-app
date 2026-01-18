@@ -133,7 +133,7 @@ $result->close();
         <h1>Administration - Inscriptions</h1>
         <nav class="admin-nav">
             <a href="../index.php" class="back">← Retour</a>
-            <a href="../logout.php">Déconnexion</a>
+            <a href="../../logout.php">Déconnexion</a>
         </nav>
     </header>
 

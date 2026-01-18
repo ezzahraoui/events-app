@@ -171,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1>Administration - Utilisateurs</h1>
         <nav class="admin-nav">
             <a href="index.php" class="back">← Retour</a>
-            <a href="../logout.php">Déconnexion</a>
+            <a href="../../logout.php">Déconnexion</a>
         </nav>
     </header>
 

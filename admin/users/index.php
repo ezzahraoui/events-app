@@ -157,8 +157,8 @@ $stmt->close();
     <header class="admin-header">
         <h1>Administration - Utilisateurs</h1>
         <nav class="admin-nav">
-            <a href="../index.php" class="back">← Retour</a>
-            <a href="../logout.php">Déconnexion</a>
+            <a href="../../admin/index.php" class="back">← Retour</a>
+            <a href="../../logout.php">Déconnexion</a>
         </nav>
     </header>
 

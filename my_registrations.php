@@ -96,7 +96,7 @@ $registrations = Registration::findByUser($userId);
                     <div class="registration-card">
                         <div class="registration-header">
                             <h3 class="registration-title">
-                                <?php echo htmlspecialchars($registration->eventTitle); ?>
+                                <?php echo htmlspecialchars($registration->getEventTitle()); ?>
                             </h3>
                             <span class="registration-date">
                                 <?php echo $registration->getRegistrationDate()->format('d/m/Y'); ?>
@@ -107,14 +107,14 @@ $registrations = Registration::findByUser($userId);
                             <div class="detail-item">
                                 <span class="detail-label">📅 Date:</span>
                                 <span class="detail-value">
-                                    <?php echo $registration->eventDate->format('d/m/Y à H:i'); ?>
+                                    <?php echo $registration->getEventDate()->format('d/m/Y à H:i'); ?>
                                 </span>
                             </div>
                             
                             <div class="detail-item">
                                 <span class="detail-label">📍 Lieu:</span>
                                 <span class="detail-value">
-                                    <?php echo htmlspecialchars($registration->eventLocation); ?>
+                                    <?php echo htmlspecialchars($registration->getEventLocation()); ?>
                                 </span>
                             </div>
                             
