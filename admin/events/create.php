@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $event->setCreatedBy($_SESSION['user_id']);
 
     try {
-        $eventDate = DateTime::createFromFormat('Y-m-d H:i', $_POST['event_date'] ?? '');
+        $eventDate = DateTime::createFromFormat('Y-m-d\TH:i', $_POST['event_date'] ?? '');
         if ($eventDate) {
             $event->setEventDate($eventDate);
         } else {

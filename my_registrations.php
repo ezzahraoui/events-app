@@ -133,14 +133,14 @@ $registrations = Registration::findByUser($userId);
                         </div>
                         
                         <div class="registration-actions">
-                            <a href="event_detail.php?id=<?php echo $registration->getEventId(); ?>" class="btn btn-outline">
+                            <a href="event_detail.php?id=<?php echo $registration->getEventId(); ?>" class="btn btn-outline" style="display:inline-flex; align-items:center; height:44px; padding: 0 24px;">
                                 Voir détails
                             </a>
                             <?php 
                             // Allow cancellation only if event is in the future
                             $now = new DateTime();
-                            if ($registration->eventDate && $registration->eventDate > $now): ?>
-                                <form method="post" action="cancel_registration.php" style="display:inline;">
+                            if ($registration->getEventDate() && $registration->getEventDate() > $now): ?>
+                                <form method="post" action="cancel_registration.php" style="margin:0;">
                                     <input type="hidden" name="event_id" value="<?php echo $registration->getEventId(); ?>">
                                     <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette inscription ?')">
                                         Annuler
@@ -282,6 +282,20 @@ $registrations = Registration::findByUser($userId);
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    align-items: center;
+}
+
+.registration-actions form {
+    display: inline;
+    margin: 0;
+}
+
+.registration-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 24px;
+    line-height: 1;
 }
 
 @media (max-width: 768px) {

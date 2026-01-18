@@ -123,6 +123,8 @@ class Event
             $stmt = $database->prepare($sql);
 
             $eventDateStr = $this->eventDate->format('Y-m-d H:i:s');
+            $imageUrl = $this->imageUrl;  // Handle NULL properly
+            $createdBy = $this->createdBy;
             $stmt->bind_param(
                 "sssissi",
                 $this->title,
@@ -130,8 +132,8 @@ class Event
                 $eventDateStr,
                 $this->location,
                 $this->capacity,
-                $this->imageUrl,
-                $this->createdBy
+                $imageUrl,
+                $createdBy
             );
 
             if ($stmt->execute()) {
@@ -146,14 +148,15 @@ class Event
             $stmt = $database->prepare($sql);
 
             $eventDateStr = $this->eventDate->format('Y-m-d H:i:s');
+            $imageUrl = $this->imageUrl;  // Handle NULL properly
             $stmt->bind_param(
-                "sssisii",
+                "sssissi",
                 $this->title,
                 $this->description,
                 $eventDateStr,
                 $this->location,
                 $this->capacity,
-                $this->imageUrl,
+                $imageUrl,
                 $this->id
             );
 
@@ -305,9 +308,14 @@ class Event
         }
 
         // Event date validation
-        $now = new DateTime();
-        if ($this->eventDate <= $now) {
-            $errors[] = "La date de l'événement doit être dans le futur";
+        // Only validate future date if it's a new event (no ID)
+        if ($this->id === null) {
+            $now = new DateTime();
+            // Add 1 minute buffer to avoid timezone/timing issues
+            $now->modify('+1 minute');
+            if ($this->eventDate < $now) {
+                $errors[] = "La date de l'événement doit être dans le futur";
+            }
         }
 
         return $errors;
