@@ -1,9 +1,4 @@
 <?php
-// Set UTF-8 header for proper character encoding
-if (headers_sent() === false) {
-    header('Content-Type: text/html; charset=utf-8');
-}
-
 require_once 'src/Database.php';
 require_once 'src/models/User.php';
 require_once 'src/services/AuthService.php';

@@ -7,7 +7,7 @@ class Database
     private function __construct()
     {
         $this->mysqli = new mysqli(
-            'db',  // Docker service name
+            'db',
             'root',
             'root',
             'events_db'
@@ -16,13 +16,6 @@ class Database
         if ($this->mysqli->connect_error) {
             die('Connection failed: ' . $this->mysqli->connect_error);
         }
-
-        // Set charset to UTF-8
-        $this->mysqli->set_charset("utf8mb4");
-
-        // Set SQL mode for UTF-8 queries
-        $this->mysqli->query("SET NAMES utf8mb4");
-        $this->mysqli->query("SET CHARACTER SET utf8mb4");
     }
 
     public static function getInstance()
