@@ -8,7 +8,6 @@ class Event
     private string $location;
     private int $capacity;
     private ?string $imageUrl = null;
-    private string $status = 'draft';
     private ?int $createdBy = null;
     private ?DateTime $createdAt = null;
     private ?DateTime $updatedAt = null;
@@ -53,11 +52,6 @@ class Event
     public function getImageUrl(): ?string
     {
         return $this->imageUrl;
-    }
-
-    public function getStatus(): string
-    {
-        return $this->status;
     }
 
     public function getCreatedBy(): ?int
@@ -112,14 +106,6 @@ class Event
         $this->updatedAt = new DateTime();
     }
 
-    public function setStatus(string $status): void
-    {
-        if (in_array($status, ['draft', 'published', 'cancelled'])) {
-            $this->status = $status;
-            $this->updatedAt = new DateTime();
-        }
-    }
-
     public function setCreatedBy(int $userId): void
     {
         $this->createdBy = $userId;
@@ -133,19 +119,18 @@ class Event
 
         if ($this->id === null) {
             // Insert new event
-            $sql = "INSERT INTO events (title, description, event_date, location, capacity, image_url, status, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO events (title, description, event_date, location, capacity, image_url, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $database->prepare($sql);
 
             $eventDateStr = $this->eventDate->format('Y-m-d H:i:s');
             $stmt->bind_param(
-                "sssisssi",
+                "sssissi",
                 $this->title,
                 $this->description,
                 $eventDateStr,
                 $this->location,
                 $this->capacity,
                 $this->imageUrl,
-                $this->status,
                 $this->createdBy
             );
 
@@ -157,19 +142,18 @@ class Event
             $stmt->close();
         } else {
             // Update existing event
-            $sql = "UPDATE events SET title = ?, description = ?, event_date = ?, location = ?, capacity = ?, image_url = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+            $sql = "UPDATE events SET title = ?, description = ?, event_date = ?, location = ?, capacity = ?, image_url = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
             $stmt = $database->prepare($sql);
 
             $eventDateStr = $this->eventDate->format('Y-m-d H:i:s');
             $stmt->bind_param(
-                "sssisssi",
+                "sssisii",
                 $this->title,
                 $this->description,
                 $eventDateStr,
                 $this->location,
                 $this->capacity,
                 $this->imageUrl,
-                $this->status,
                 $this->id
             );
 
@@ -201,7 +185,6 @@ class Event
             $event->location = $row['location'];
             $event->capacity = $row['capacity'];
             $event->imageUrl = $row['image_url'];
-            $event->status = $row['status'];
             $event->createdBy = $row['created_by'];
             $event->createdAt = new DateTime($row['created_at']);
             $event->updatedAt = new DateTime($row['updated_at']);
@@ -230,7 +213,6 @@ class Event
                 $event->location = $row['location'];
                 $event->capacity = $row['capacity'];
                 $event->imageUrl = $row['image_url'];
-                $event->status = $row['status'];
                 $event->createdBy = $row['created_by'];
                 $event->createdAt = new DateTime($row['created_at']);
                 $event->updatedAt = new DateTime($row['updated_at']);
@@ -244,7 +226,7 @@ class Event
     public static function findAllPublished(): array
     {
         $database = Database::getInstance();
-        $sql = "SELECT * FROM events WHERE status = 'published' ORDER BY event_date ASC";
+        $sql = "SELECT * FROM events ORDER BY event_date ASC";
         $result = $database->query($sql);
 
         $events = [];
@@ -258,7 +240,6 @@ class Event
                 $event->location = $row['location'];
                 $event->capacity = $row['capacity'];
                 $event->imageUrl = $row['image_url'];
-                $event->status = $row['status'];
                 $event->createdBy = $row['created_by'];
                 $event->createdAt = new DateTime($row['created_at']);
                 $event->updatedAt = new DateTime($row['updated_at']);
@@ -327,11 +308,6 @@ class Event
         $now = new DateTime();
         if ($this->eventDate <= $now) {
             $errors[] = "La date de l'événement doit être dans le futur";
-        }
-
-        // Status validation
-        if (!in_array($this->status, ['draft', 'published', 'cancelled'])) {
-            $errors[] = "Le statut n'est pas valide";
         }
 
         return $errors;

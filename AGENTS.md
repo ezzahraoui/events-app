@@ -121,11 +121,18 @@ $event = new Event();
 - **cancel_registration.php** : POST handler pour annuler (users)
 
 ### Pages Admin (admin/)
-- **index.php** : Dashboard admin avec tous les événements
-- **create_event.php** : Formulaire création événement
-- **edit_event.php** : Formulaire modification événement
-- **delete_event.php** : POST handler suppression (hard-delete)
-- **registrations.php** : Vue globale des inscriptions
+- **index.php** : Dashboard admin avec menu de navigation
+- **users/** : Gestion des utilisateurs
+  - **index.php** : Liste des utilisateurs (sans admin, sans colonne rôle)
+  - **create.php** : Ajouter un utilisateur
+  - **edit.php** : Modifier un utilisateur (sans mot de passe)
+  - **delete.php** : Supprimer un utilisateur (hard-delete)
+- **events/** : Gestion des événements
+  - **index.php** : Liste de tous les événements (pas de statut)
+  - **create.php** : Créer un événement
+  - **edit.php** : Modifier un événement
+  - **delete.php** : Supprimer un événement (hard-delete)
+  - **registrations.php** : Vue globale des inscriptions
 
 ### Services (src/services/)
 - **AuthService.php** : Gestion authentification + rôles
@@ -140,6 +147,7 @@ $event = new Event();
 
 ### Rôle Admin (ROLE_ADMIN)
 - ✅ **PEUT** : Créer, modifier, supprimer les événements
+- ✅ **PEUT** : Créer, modifier, supprimer les utilisateurs (uniquement ROLE_USER)
 - ✅ **PEUT** : Voir toutes les inscriptions (vue globale)
 - ✅ **PEUT** : Accéder à `/admin/*`
 - ❌ **NE PEUT PAS** : S'inscrire aux événements
@@ -147,7 +155,7 @@ $event = new Event();
 - ❌ **NE PEUT PAS** : Voir page `/event_detail.php` (redirigé à `/admin/index.php`)
 
 ### Rôle User (ROLE_USER)
-- ✅ **PEUT** : Voir TOUS les événements (published + draft + cancelled)
+- ✅ **PEUT** : Voir TOUS les événements (sans filtrage par statut)
 - ✅ **PEUT** : S'inscrire aux événements disponibles
 - ✅ **PEUT** : Consulter ses inscriptions personnelles
 - ✅ **PEUT** : Annuler ses inscriptions
@@ -403,17 +411,25 @@ class AuthService {
 ├── 403.php                     # Erreur accès refusé (tous)
 ├── event_detail.php            # Détails événement (users connectés)
 ├── my_registrations.php        # Inscriptions personnelles (users uniquement)
+├── cancel_registration.php     # Annuler inscription (users)
 ├── admin/                      # Pages admin-only
-│   ├── index.php               # Dashboard admin
-│   ├── create_event.php        # Créer événement
-│   ├── edit_event.php          # Modifier événement
-│   ├── delete_event.php        # Supprimer événement
-│   └── registrations.php       # Vue globale inscriptions
+│   ├── index.php               # Dashboard admin (menu navigation)
+│   ├── users/                  # Gestion utilisateurs
+│   │   ├── index.php           # Liste utilisateurs (sans admin, sans rôle)
+│   │   ├── create.php          # Ajouter utilisateur
+│   │   ├── edit.php            # Modifier utilisateur (sans mot de passe)
+│   │   └── delete.php          # Supprimer utilisateur
+│   └── events/                 # Gestion événements
+│       ├── index.php           # Liste événements (pas de statut)
+│       ├── create.php          # Créer événement
+│       ├── edit.php            # Modifier événement
+│       ├── delete.php          # Supprimer événement
+│       └── registrations.php   # Vue globale inscriptions
 ├── src/
 │   ├── Database.php            # Singleton BDD
 │   ├── models/
 │   │   ├── User.php            # Class User
-│   │   ├── Event.php           # Class Event
+│   │   ├── Event.php           # Class Event (sans champ status)
 │   │   └── Registration.php    # Class Registration
 │   └── services/
 │       ├── AuthService.php     # Gestion auth + rôles

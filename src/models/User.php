@@ -221,4 +221,21 @@ class User
 
         return $errors;
     }
+
+    public function delete(): bool
+    {
+        if (!$this->id) {
+            return false;
+        }
+
+        $database = Database::getInstance();
+        $sql = "DELETE FROM users WHERE id = ?";
+        $stmt = $database->prepare($sql);
+        $stmt->bind_param("i", $this->id);
+
+        $result = $stmt->execute();
+        $stmt->close();
+
+        return $result;
+    }
 }

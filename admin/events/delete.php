@@ -1,11 +1,9 @@
 <?php
-require_once '../src/Database.php';
-require_once '../src/models/Event.php';
-require_once '../src/services/AuthService.php';
+require_once '../../src/Database.php';
+require_once '../../src/models/Event.php';
+require_once '../../src/services/AuthService.php';
 
 session_start();
-
-// Vérification admin OBLIGATOIRE
 AuthService::requireAdmin();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -23,7 +21,6 @@ if (!$event) {
     exit;
 }
 
-// Supprimer l'événement (hard-delete)
 if ($event->delete()) {
     $_SESSION['success'] = 'Événement supprimé avec succès !';
 } else {
