@@ -11,6 +11,7 @@ services:
       - ./:/var/www/html
     depends_on:
       - db
+      - mailhog
     environment:
       - DB_HOST=db
       - DB_NAME=events_db
@@ -31,6 +32,7 @@ services:
 
   mailhog:
     image: mailhog/mailhog
+    container_name: events-app-mailhog
     ports:
       - "1025:1025"  # SMTP
       - "8025:8025"  # Web interface
