@@ -19,7 +19,7 @@ $userId = AuthService::getCurrentUserId();
 
 // Trouver l'inscription
 $database = Database::getInstance();
-$sql = "SELECT * FROM registrations WHERE event_id = ? AND user_id = ? AND status = 'confirmed'";
+$sql = "SELECT * FROM registrations WHERE event_id = ? AND user_id = ?";
 $stmt = $database->prepare($sql);
 $stmt->bind_param("ii", $eventId, $userId);
 $stmt->execute();
@@ -41,17 +41,17 @@ if ($registrationRow['user_id'] !== $userId) {
     exit;
 }
 
-// Annuler l'inscription (soft-update de status)
-$updateSql = "UPDATE registrations SET status = 'cancelled' WHERE id = ?";
-$updateStmt = $database->prepare($updateSql);
-$updateStmt->bind_param("i", $registrationRow['id']);
+// Supprimer l'inscription (hard-delete)
+$deleteSql = "DELETE FROM registrations WHERE id = ?";
+$deleteStmt = $database->prepare($deleteSql);
+$deleteStmt->bind_param("i", $registrationRow['id']);
 
-if ($updateStmt->execute()) {
+if ($deleteStmt->execute()) {
     $_SESSION['success'] = 'Inscription annulée avec succès !';
 } else {
     $_SESSION['error'] = 'Une erreur est survenue lors de l\'annulation.';
 }
-$updateStmt->close();
+$deleteStmt->close();
 
 header('Location: my_registrations.php');
 exit;

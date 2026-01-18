@@ -429,7 +429,7 @@ class AuthService {
 │   ├── Database.php            # Singleton BDD
 │   ├── models/
 │   │   ├── User.php            # Class User
-│   │   ├── Event.php           # Class Event (sans champ status)
+│   │   ├── Event.php           # Class Event
 │   │   └── Registration.php    # Class Registration
 │   └── services/
 │       ├── AuthService.php     # Gestion auth + rôles
@@ -450,9 +450,9 @@ class AuthService {
 
 1. **Zéro feature bonus** - Seulement ce qui est nécessaire
 2. **Hard-delete** - Pas de soft-delete, juste supprimer
-3. **Pas d'annulation** - Les users gardent leurs inscriptions
+3. **Pas d'annulation status** - Les users peuvent annuler mais registration est supprimée
 4. **Tous les événements** - Pas de tri/recherche, afficher tous
-5. **Pas de status** - Les événements existent simplement
+5. **Pas de status** - Les événements existent simplement (pas de champ status)
 6. **Code débutant** - Simple, lisible, pas de patterns complexes
 7. **Duplication acceptée** - Style étudiant: header/footer copiés
 

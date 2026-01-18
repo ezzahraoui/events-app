@@ -158,7 +158,6 @@ $result->close();
                             <th>Utilisateur</th>
                             <th>Email</th>
                             <th>Date d'inscription</th>
-                            <th>Statut</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -168,7 +167,6 @@ $result->close();
                                 <td><?php echo htmlspecialchars($reg['first_name'] . ' ' . $reg['last_name']); ?></td>
                                 <td><?php echo htmlspecialchars($reg['user_email']); ?></td>
                                 <td><?php echo date('d/m/Y H:i', strtotime($reg['registration_date'])); ?></td>
-                                <td><?php echo $reg['status']; ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

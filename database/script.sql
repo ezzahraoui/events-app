@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS events (
     location VARCHAR(200) NOT NULL,
     capacity INT NOT NULL DEFAULT 50,
     image_url VARCHAR(255),
-    status ENUM('draft', 'published', 'cancelled') DEFAULT 'draft',
     created_by INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -37,7 +36,6 @@ CREATE TABLE IF NOT EXISTS registrations (
     event_id INT NOT NULL,
     user_id INT NOT NULL,
     registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('confirmed', 'cancelled') DEFAULT 'confirmed',
     UNIQUE KEY unique_registration (event_id, user_id),
     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -50,11 +48,11 @@ INSERT INTO users (email, password_hash, first_name, last_name, role) VALUES
 ('user2@events.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Marie', 'Martin', 'ROLE_USER')
 ON DUPLICATE KEY UPDATE email=VALUES(email);
 
-INSERT INTO events (title, description, event_date, location, capacity, created_by, status) VALUES
-('Conférence PHP 2024', 'Une conférence sur les dernières tendances PHP et les meilleures pratiques de développement.', '2024-12-20 14:00:00', 'Salle de conférence A', 30, 1, 'published'),
-('Workshop MySQL', 'Atelier pratique sur l\'optimisation des requêtes MySQL et la conception de bases de données.', '2024-12-25 09:00:00', 'Labo informatique', 15, 1, 'published'),
-('Meetup Développeurs', 'Rencontre informelle entre développeurs pour échanger sur les nouvelles technologies.', '2024-12-30 18:00:00', 'Café du Coin', 20, 1, 'published'),
-('Hackathon Week-end', '48h de coding intensif pour créer des projets innovants.', '2025-01-15 09:00:00', 'Tech Hub', 50, 1, 'published')
+INSERT INTO events (title, description, event_date, location, capacity, created_by) VALUES
+('Conférence PHP 2024', 'Une conférence sur les dernières tendances PHP et les meilleures pratiques de développement.', '2024-12-20 14:00:00', 'Salle de conférence A', 30, 1),
+('Workshop MySQL', 'Atelier pratique sur l\'optimisation des requêtes MySQL et la conception de bases de données.', '2024-12-25 09:00:00', 'Labo informatique', 15, 1),
+('Meetup Développeurs', 'Rencontre informelle entre développeurs pour échanger sur les nouvelles technologies.', '2024-12-30 18:00:00', 'Café du Coin', 20, 1),
+('Hackathon Week-end', '48h de coding intensif pour créer des projets innovants.', '2025-01-15 09:00:00', 'Tech Hub', 50, 1)
 ON DUPLICATE KEY UPDATE title=VALUES(title);
 
 SELECT 'Database events_db initialized successfully!' as status;

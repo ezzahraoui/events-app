@@ -20,9 +20,9 @@ if (AuthService::isAdmin()) {
 $database = Database::getInstance();
 $mysqli = $database->getConnection();
 
-// Get published events
+// Get all events
 $events = [];
-$sql = "SELECT * FROM events WHERE status = 'published' ORDER BY event_date ASC LIMIT 6";
+$sql = "SELECT * FROM events ORDER BY event_date ASC LIMIT 6";
 $result = $mysqli->query($sql);
 
 if ($result) {

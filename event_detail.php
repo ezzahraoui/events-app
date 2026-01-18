@@ -18,7 +18,7 @@ AuthService::requireLogin();
 $eventId = $_GET['id'] ?? 0;
 $event = Event::findById($eventId);
 
-if (!$event || $event->getStatus() !== 'published') {
+if (!$event) {
     $_SESSION['error'] = 'Événement non trouvé.';
     header('Location: index.php');
     exit;

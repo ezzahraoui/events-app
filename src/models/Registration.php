@@ -5,15 +5,6 @@ class Registration
     private int $eventId;
     private int $userId;
     private DateTime $registrationDate;
-    private string $status = 'confirmed';
-
-    // Additional properties for joined data
-    private ?string $eventTitle = null;
-    private ?DateTime $eventDate = null;
-    private ?string $eventLocation = null;
-    private ?string $userFirstName = null;
-    private ?string $userLastName = null;
-    private ?string $userEmail = null;
 
     public function __construct(int $eventId, int $userId)
     {
@@ -43,18 +34,7 @@ class Registration
         return $this->registrationDate;
     }
 
-    public function getStatus(): string
-    {
-        return $this->status;
-    }
-
     // Setters
-    public function setStatus(string $status): void
-    {
-        if (in_array($status, ['confirmed', 'cancelled'])) {
-            $this->status = $status;
-        }
-    }
 
     // Database methods
     public function save(): bool
@@ -72,9 +52,9 @@ class Registration
         }
 
         // Insert registration
-        $sql = "INSERT INTO registrations (event_id, user_id, status) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO registrations (event_id, user_id) VALUES (?, ?)";
         $stmt = $database->prepare($sql);
-        $stmt->bind_param("iis", $this->eventId, $this->userId, $this->status);
+        $stmt->bind_param("ii", $this->eventId, $this->userId);
 
         if ($stmt->execute()) {
             $this->id = $database->getLastInsertId();
@@ -89,7 +69,7 @@ class Registration
     public static function isUserRegistered(int $eventId, int $userId): bool
     {
         $database = Database::getInstance();
-        $sql = "SELECT COUNT(*) as count FROM registrations WHERE event_id = ? AND user_id = ? AND status = 'confirmed'";
+        $sql = "SELECT COUNT(*) as count FROM registrations WHERE event_id = ? AND user_id = ?";
         $stmt = $database->prepare($sql);
         $stmt->bind_param("ii", $eventId, $userId);
         $stmt->execute();
@@ -106,7 +86,7 @@ class Registration
         $database = Database::getInstance();
         $sql = "SELECT e.capacity, COUNT(r.id) as registered 
                 FROM events e 
-                LEFT JOIN registrations r ON e.id = r.event_id AND r.status = 'confirmed' 
+                LEFT JOIN registrations r ON e.id = r.event_id 
                 WHERE e.id = ? 
                 GROUP BY e.id, e.capacity";
         $stmt = $database->prepare($sql);
@@ -130,7 +110,7 @@ class Registration
         $sql = "SELECT r.*, e.title, e.event_date, e.location 
                 FROM registrations r 
                 JOIN events e ON r.event_id = e.id 
-                WHERE r.user_id = ? AND r.status = 'confirmed' 
+                WHERE r.user_id = ? 
                 ORDER BY e.event_date ASC";
         $stmt = $database->prepare($sql);
         $stmt->bind_param("i", $userId);
@@ -141,11 +121,7 @@ class Registration
         while ($row = $result->fetch_assoc()) {
             $registration = new self($row['event_id'], $row['user_id']);
             $registration->id = $row['id'];
-            $registration->status = $row['status'];
             $registration->registrationDate = new DateTime($row['registration_date']);
-            $registration->eventTitle = $row['title'];
-            $registration->eventDate = new DateTime($row['event_date']);
-            $registration->eventLocation = $row['location'];
             $registrations[] = $registration;
         }
 
@@ -159,7 +135,7 @@ class Registration
         $sql = "SELECT r.*, u.first_name, u.last_name, u.email 
                 FROM registrations r 
                 JOIN users u ON r.user_id = u.id 
-                WHERE r.event_id = ? AND r.status = 'confirmed' 
+                WHERE r.event_id = ? 
                 ORDER BY r.registration_date ASC";
         $stmt = $database->prepare($sql);
         $stmt->bind_param("i", $eventId);
@@ -170,11 +146,7 @@ class Registration
         while ($row = $result->fetch_assoc()) {
             $registration = new self($row['event_id'], $row['user_id']);
             $registration->id = $row['id'];
-            $registration->status = $row['status'];
             $registration->registrationDate = new DateTime($row['registration_date']);
-            $registration->userFirstName = $row['first_name'];
-            $registration->userLastName = $row['last_name'];
-            $registration->userEmail = $row['email'];
             $registrations[] = $registration;
         }
 
@@ -189,12 +161,11 @@ class Registration
         }
 
         $database = Database::getInstance();
-        $sql = "UPDATE registrations SET status = 'cancelled' WHERE id = ?";
+        $sql = "DELETE FROM registrations WHERE id = ?";
         $stmt = $database->prepare($sql);
         $stmt->bind_param("i", $this->id);
 
         if ($stmt->execute()) {
-            $this->status = 'cancelled';
             $stmt->close();
             return true;
         }
