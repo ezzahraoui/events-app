@@ -161,11 +161,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isRegistered && $hasCapacity && !
         </div>
     </main>
 
-    <footer class="main-footer">
-        <div class="footer-container">
-            <p>&copy; <?php echo date('Y'); ?> Événements. Tous droits réservés.</p>
-        </div>
-    </footer>
 </body>
 
 </html>

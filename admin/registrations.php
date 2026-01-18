@@ -141,12 +141,6 @@ if ($result) {
         </div>
     </main>
 
-    <footer class="main-footer">
-        <div class="footer-container">
-            <p>&copy; <?php echo date('Y'); ?> Événements. Tous droits réservés.</p>
-        </div>
-    </footer>
-
     <style>
         .admin-section {
             max-width: 1200px;

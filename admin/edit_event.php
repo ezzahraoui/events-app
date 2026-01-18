@@ -204,12 +204,6 @@ $eventDateTime = $event->getEventDate()->format('Y-m-d H:i');
         </div>
     </main>
 
-    <footer class="main-footer">
-        <div class="footer-container">
-            <p>&copy; <?php echo date('Y'); ?> Événements. Tous droits réservés.</p>
-        </div>
-    </footer>
-
     <style>
         .form-container {
             max-width: 800px;

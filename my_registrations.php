@@ -311,10 +311,5 @@ $registrations = Registration::findByUser($userId);
 
     </main>
 
-    <footer class="main-footer">
-        <div class="footer-container">
-            <p>&copy; <?php echo date('Y'); ?> Événements. Tous droits réservés.</p>
-        </div>
-    </footer>
 </body>
 </html>
