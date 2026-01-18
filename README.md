@@ -24,9 +24,9 @@ http://localhost:8025
 
 ## 👥 Comptes de Test
 ```
-Admin: admin@events.com / password
-User:  user1@events.com / password
-User:  user2@events.com / password
+Admin: admin@gmail.com / password
+User:  user1@gmail.com / password
+User:  user2@gmail.com / password
 ```
 
 ## ✨ Fonctionnalités Principales
