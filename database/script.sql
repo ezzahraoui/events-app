@@ -1,5 +1,8 @@
-CREATE DATABASE IF NOT EXISTS events_db;
+CREATE DATABASE IF NOT EXISTS events_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE events_db;
+
+-- Définit le charset de connexion pour une gestion correcte des caractères accentués lors des insertions
+SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,

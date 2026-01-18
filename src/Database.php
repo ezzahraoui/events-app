@@ -16,6 +16,9 @@ class Database
         if ($this->mysqli->connect_error) {
             die('Connection failed: ' . $this->mysqli->connect_error);
         }
+
+        // Définit le charset UTF-8 pour une gestion correcte des caractères accentués
+        $this->mysqli->set_charset('utf8mb4');
     }
 
     public static function getInstance()
